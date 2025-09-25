@@ -15,7 +15,9 @@
       "Bash(pnpm remove:*)",
       "Bash(npm run dev:*)",
       "Bash(curl:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npm search:*)"
     ],
     "deny": [],
     "ask": []

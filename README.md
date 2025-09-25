@@ -38,7 +38,6 @@ Sample application demonstrating Google Shopping API integration for product man
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
    SESSION_SECRET=your_session_secret
-   GOOGLE_MERCHANT_ID=your_merchant_id
    PORT=3000
    ```
 

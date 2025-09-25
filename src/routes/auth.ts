@@ -1,7 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { getAuthUrl, setCredentials, oauth2Client } from '../config/oauth';
+import { GoogleShoppingService } from '../services/googleShopping';
 
 const router: Router = Router();
+const shoppingService = new GoogleShoppingService();
 
 router.get('/auth/google', async (req: Request, res: Response) => {
   const authUrl = getAuthUrl(false); // Solo scopes básicos
@@ -54,6 +56,52 @@ router.get('/auth/request-merchant-access', async (req: any, res: any) => {
     authUrl,
     title: 'Merchant Access Required'
   });
+});
+
+router.get('/auth/register-gcp', async (req: any, res: any) => {
+  if (!req.session?.tokens) {
+    res.redirect('/');
+    return;
+  }
+
+  res.render('register-gcp', {
+    title: 'Register GCP Project'
+  });
+});
+
+router.post('/auth/register-gcp', async (req: any, res: any) => {
+  if (!req.session?.tokens) {
+    res.status(401).json({ error: 'Authentication required' });
+    return;
+  }
+
+  const merchantId  = 5660240742;
+  const developerEmail = 'capy.net@gmail.com';
+
+  try {
+    oauth2Client.setCredentials(req.session.tokens);
+    const result = await shoppingService.registerGcpProject(merchantId, developerEmail);
+    res.json({
+      success: true,
+      data: result,
+      message: 'GCP project registered successfully. Please wait 5 minutes for changes to propagate.'
+    });
+  } catch (error: any) {
+    console.error('Error registering GCP project:', error);
+
+    // Check if it's already registered
+    if (error.message?.includes('already registered')) {
+      res.json({
+        success: true,
+        message: 'GCP project is already registered with this merchant account.'
+      });
+    } else {
+      res.status(500).json({
+        error: 'Failed to register GCP project',
+        details: error.message || 'Unknown error occurred'
+      });
+    }
+  }
 });
 
 router.get('/auth/logout', async (req: any, res: any) => {

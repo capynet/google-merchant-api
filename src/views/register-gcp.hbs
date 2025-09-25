@@ -1,0 +1,76 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2>Register GCP Project with Merchant Center</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p><strong>Project ID:</strong> products-management-473007</p>
+                        <p><strong>Project Number:</strong> 478678060652</p>
+                        <p><strong>Merchant ID:</strong> 5660240742</p>
+                        <p><strong>Developer Email:</strong> capy.net@gmail.com</p>
+                        <p>Click the button below to register this GCP project with your Merchant Center account.</p>
+                    </div>
+
+                    <button id="registerBtn" class="btn btn-primary btn-lg btn-block" onclick="registerProject()">
+                        Register GCP Project
+                    </button>
+
+                    <div id="result" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function registerProject() {
+        const resultDiv = document.getElementById('result');
+        const button = document.getElementById('registerBtn');
+
+        button.disabled = true;
+        resultDiv.innerHTML = '<div class="alert alert-info">Registering GCP project...</div>';
+
+        try {
+            const response = await fetch('/auth/register-gcp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (response.ok || data.success) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h4>✅ Success!</h4>
+                        <p>${data.message || 'GCP project has been registered with Merchant Center.'}</p>
+                        <p>Please wait 5 minutes for the changes to propagate.</p>
+                        <a href="/products" class="btn btn-success mt-2">Go to Products</a>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>❌ Error</h4>
+                        <p>${data.error}</p>
+                        <p class="text-muted">${data.details || ''}</p>
+                    </div>
+                `;
+                button.disabled = false;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>❌ Error</h4>
+                    <p>Failed to register: ${error.message}</p>
+                </div>
+            `;
+            button.disabled = false;
+        }
+    }
+</script>

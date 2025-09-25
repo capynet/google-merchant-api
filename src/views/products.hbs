@@ -4,33 +4,39 @@
         <a href="/auth/logout" class="btn btn-secondary">Logout</a>
     </div>
 
+    {{#if error}}
+        <div class="alert alert-error" style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+            {{error}}
+        </div>
+    {{/if}}
+
+
     <div class="create-form" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
         <h2>Create New Product</h2>
         <form method="POST" action="/products/create">
-            <input type="hidden" name="merchantId" value="{{merchantId}}">
             <div class="form-group" style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Title:</label>
-                <input type="text" name="title" placeholder="Product Title" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" name="title" value="Wireless Bluetooth Headphones" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
             <div class="form-group" style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Description:</label>
-                <textarea name="description" placeholder="Product Description" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                <textarea name="description" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">Premium noise-cancelling wireless headphones with 30-hour battery life, crystal clear audio, and comfortable over-ear design. Perfect for music lovers and professionals.</textarea>
             </div>
             <div class="form-group" style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Price:</label>
-                <input type="number" name="price" placeholder="29.99" step="0.01" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="number" name="price" value="79.99" step="0.01" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
             <div class="form-group" style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Brand:</label>
-                <input type="text" name="brand" placeholder="Brand Name" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" name="brand" value="TechSound Pro" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
             <div class="form-group" style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Product Link:</label>
-                <input type="url" name="link" placeholder="https://example.com/product" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="url" name="link" value="https://example.com/wireless-headphones" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
             <div class="form-group" style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Image Link:</label>
-                <input type="url" name="imageLink" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="url" name="imageLink" value="https://picsum.photos/400/300?random=1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
             <button type="submit" class="btn">Create Product</button>
         </form>
@@ -40,15 +46,11 @@
     {{#if products.resources}}
         {{#each products.resources}}
         <div class="product" style="border: 1px solid #ddd; padding: 20px; margin: 10px 0; border-radius: 8px;">
-            <h3>{{#if title}}{{title}}{{else}}Untitled Product{{/if}}</h3>
-            <p><strong>ID:</strong> {{id}}</p>
+            <h3>{{productAttributes.title}}</h3>
+            <p><strong>Desc:</strong> {{productAttributes.description}}</p>
+            <p><strong>datasource:</strong> {{dataSource}}</p>
             <p><strong>Offer ID:</strong> {{offerId}}</p>
-            <p><strong>Price:</strong> {{#if price}}{{price.value}} {{price.currency}}{{else}}N/A{{/if}}</p>
-            <p><strong>Availability:</strong> {{#if availability}}{{availability}}{{else}}N/A{{/if}}</p>
-            <p><strong>Condition:</strong> {{#if condition}}{{condition}}{{else}}N/A{{/if}}</p>
-            {{#if imageLink}}
-                <img src="{{imageLink}}" alt="{{title}}" style="max-width: 100px; height: auto;">
-            {{/if}}
+                <img src="{{productAttributes.imageLink}}" alt="{{productAttributes.title}}" style="max-width: 100px; height: auto;">
         </div>
         {{/each}}
     {{else}}

@@ -1,25 +1,5 @@
-export interface Product {
-  id?: string;
-  offerId: string;
-  title: string;
-  description?: string;
-  link?: string;
-  imageLink?: string;
-  contentLanguage: string;
-  targetCountry: string;
-  channel: string;
-  availability: string;
-  condition: string;
-  price: {
-    value: string;
-    currency: string;
-  };
-  brand?: string;
-  gtin?: string;
-}
 
 export interface ProductData {
-  offerId?: string;
   title?: string;
   description?: string;
   link?: string;
@@ -32,7 +12,7 @@ export interface ProductData {
 export interface GoogleProductsResponse {
   kind?: string;
   nextPageToken?: string;
-  resources?: Product[];
+  resources?: any[]; // This will be populated with IProduct objects
 }
 
 export interface OAuthTokens {
@@ -48,4 +28,25 @@ export interface AppContext {
     tokens?: any;
     user?: any;
   } | null;
+}
+
+export interface MerchantAccount {
+  name?: string;
+  accountId?: string;
+  kind?: string;
+  businessInformation?: any;
+  adultContent?: boolean;
+  businessName?: string;
+  businessAddress?: any;
+}
+
+export interface MerchantAccountsResponse {
+  kind?: string;
+  nextPageToken?: string;
+  resources?: MerchantAccount[];
+}
+
+export interface GcpRegistrationRequest {
+  projectId: string;
+  email: string;
 }
