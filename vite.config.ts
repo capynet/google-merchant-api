@@ -1,12 +1,10 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import { VitePluginNode } from 'vite-plugin-node';
 
 export default defineConfig({
   plugins: [
-    react(),
     VitePluginNode({
-      adapter: 'koa',
+      adapter: 'express',
       appPath: './src/app.ts',
       exportName: 'app',
     }),
