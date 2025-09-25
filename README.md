@@ -1,20 +1,19 @@
 # Google Shopping Merchant Sample
 
-A TypeScript Koa.js application that demonstrates integration with Google Shopping API for managing products.
+Sample application demonstrating Google Shopping API integration for product management.
 
 ## Features
 
 - OAuth 2.0 authentication with Google
 - List Google Shopping products
 - Create new products with sample data
-- Product management interface
-- Responsive web interface
+- Web interface with Express and Handlebars
 
 ## Setup
 
 1. **Clone and install dependencies:**
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. **Set up Google Cloud Project:**
@@ -43,20 +42,12 @@ A TypeScript Koa.js application that demonstrates integration with Google Shoppi
    PORT=3000
    ```
 
-5. **Run the application:**
+5. **Start the development server:**
    ```bash
-   # Development mode with hot reload
-   npm run dev
-
-   # Production build and run
-   npm run prod
-
-   # Type checking only
-   npm run typecheck
+   pnpm run dev
    ```
 
-6. **Open your browser:**
-   Navigate to `http://localhost:3000`
+   The application will be available at `http://localhost:5173/`
 
 ## API Endpoints
 
@@ -66,44 +57,3 @@ A TypeScript Koa.js application that demonstrates integration with Google Shoppi
 - `GET /products` - List products (requires authentication)
 - `POST /products/create` - Create new product (requires authentication)
 - `GET /auth/logout` - Logout
-
-## Project Structure
-
-```
-├── src/
-│   ├── app.ts                 # Main server file
-│   ├── config/
-│   │   └── oauth.ts          # Google OAuth configuration
-│   ├── routes/
-│   │   ├── auth.ts           # Authentication routes
-│   │   └── products.ts       # Product management routes
-│   ├── services/
-│   │   └── googleShopping.ts # Google Shopping API service
-│   └── types/
-│       └── index.ts          # TypeScript type definitions
-├── public/
-│   └── index.html            # Frontend interface
-├── dist/                     # Compiled JavaScript (generated)
-├── tsconfig.json             # TypeScript configuration
-├── nodemon.json              # Nodemon configuration
-└── .env.example              # Environment variables template
-```
-
-## Dependencies
-
-- **koa** - Web framework
-- **@koa/router** - Routing
-- **@koa/cors** - CORS middleware
-- **koa-bodyparser** - Body parsing
-- **koa-static** - Static file serving
-- **koa-session** - Session management
-- **googleapis** - Google APIs client
-- **@google-shopping/products** - Google Shopping API
-- **dotenv** - Environment variables
-
-## Notes
-
-- Make sure your Google Cloud project has the Content API enabled
-- Your Google Merchant Center account must be verified and approved
-- The application uses sample data for product creation
-- Products created through this app will appear in your Google Merchant Center
