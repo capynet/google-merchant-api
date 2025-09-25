@@ -83,7 +83,7 @@ export class GoogleShoppingService {
       const parent = `accounts/${merchantId}`;
 
       // Get the first available data source
-      const dataSource = 'accounts/5660240742/dataSources/10571226239';
+      const dataSource = 'accounts/5661333043/dataSources/10571493917';
 
         const productInput: protos.google.shopping.merchant.products.v1.IProductInput = {
             offerId: offerId,

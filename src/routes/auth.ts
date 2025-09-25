@@ -75,7 +75,7 @@ router.post('/auth/register-gcp', async (req: any, res: any) => {
     return;
   }
 
-  const merchantId  = 5660240742;
+  const merchantId  = 5661333043;
   const developerEmail = 'capy.net@gmail.com';
 
   try {
