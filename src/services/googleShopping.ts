@@ -1,7 +1,7 @@
 import {ProductsServiceClient, ProductInputsServiceClient, protos as productProtos} from '@google-shopping/products';
 import {AccountsServiceClient, DeveloperRegistrationServiceClient, protos as accountProtos} from '@google-shopping/accounts';
 import {DataSourcesServiceClient, protos as datasourceProtos} from '@google-shopping/datasources';
-import {oauth2Client} from '../config/oauth';
+import {oauth2Client, ensureValidTokens} from '../config/oauth';
 
 type IProduct = productProtos.google.shopping.merchant.products.v1.IProduct;
 type IProductInput = productProtos.google.shopping.merchant.products.v1.IProductInput;
@@ -56,27 +56,10 @@ class GoogleShoppingService {
         return GoogleShoppingService.instance;
     }
 
-    // Ensure tokens are fresh before API calls
-    private async ensureValidTokens(): Promise<void> {
-        const tokens = oauth2Client.credentials;
-        if (!tokens || !tokens.access_token) {
-            throw new Error('No valid tokens available');
-        }
-
-        // Check if token is expired and refresh if needed
-        if (tokens.expiry_date && tokens.expiry_date <= Date.now()) {
-            if (tokens.refresh_token) {
-                const {credentials} = await oauth2Client.refreshAccessToken();
-                oauth2Client.setCredentials(credentials);
-            } else {
-                throw new Error('Access token expired and no refresh token available');
-            }
-        }
-    }
 
     async listProducts(): Promise<IListProductsResponse> {
         try {
-            await this.ensureValidTokens();
+            await ensureValidTokens();
             await this.getMerchantId()
 
             const parent = `accounts/${this.merchantId}`;
@@ -102,7 +85,7 @@ class GoogleShoppingService {
 
     async createProduct(productData: ProductData): Promise<IProduct> {
         try {
-            await this.ensureValidTokens();
+            await ensureValidTokens();
             await this.getMerchantId()
             await this.getApiDataSource()
 
@@ -152,7 +135,7 @@ class GoogleShoppingService {
 
     async getProduct(productId: string): Promise<IProduct> {
         try {
-            await this.ensureValidTokens();
+            await ensureValidTokens();
             await this.getMerchantId()
 
             const name = `accounts/${this.merchantId}/products/${productId}`;
@@ -168,7 +151,7 @@ class GoogleShoppingService {
 
     async listMerchantAccounts(): Promise<IListAccountsResponse> {
         try {
-            await this.ensureValidTokens();
+            await ensureValidTokens();
 
             const iterable = this.accountsClient.listAccountsAsync({});
             const accounts: IAccount[] = [];
@@ -189,7 +172,7 @@ class GoogleShoppingService {
 
     async registerGcpProject(developerEmail: string): Promise<any> {
         try {
-            await this.ensureValidTokens();
+            await ensureValidTokens();
             await this.getMerchantId()
 
             const parent = `accounts/${this.merchantId}`;
@@ -214,7 +197,7 @@ class GoogleShoppingService {
 
     async listDataSources(): Promise<IDataSource[]> {
         try {
-            await this.ensureValidTokens();
+            await ensureValidTokens();
             await this.getMerchantId()
 
             const parent = `accounts/${this.merchantId}`;
@@ -253,7 +236,7 @@ class GoogleShoppingService {
     async getMerchantId(): Promise<void> {
 
         try {
-            await this.ensureValidTokens();
+            await ensureValidTokens();
 
             const accounts = await this.listMerchantAccounts();
 

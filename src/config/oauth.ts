@@ -44,4 +44,21 @@ export async function hasContentScope(tokens: any): Promise<boolean> {
     return scopes.includes(MERCHANT_SCOPE);
 }
 
+export async function ensureValidTokens(): Promise<void> {
+    const tokens = oauth2Client.credentials;
+    if (!tokens || !tokens.access_token) {
+        throw new Error('No valid tokens available');
+    }
+
+    // Check if token is expired and refresh if needed
+    if (tokens.expiry_date && tokens.expiry_date <= Date.now()) {
+        if (tokens.refresh_token) {
+            const {credentials} = await oauth2Client.refreshAccessToken();
+            oauth2Client.setCredentials(credentials);
+        } else {
+            throw new Error('Access token expired and no refresh token available');
+        }
+    }
+}
+
 export {oauth2Client, MERCHANT_SCOPE};
