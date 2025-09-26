@@ -133,12 +133,12 @@ class GoogleShoppingService {
         }
     }
 
-    async getProduct(productId: string): Promise<IProduct> {
+    async getProduct(offerId: string): Promise<IProduct> {
         try {
             await ensureValidTokens();
             await this.getMerchantId()
 
-            const name = `accounts/${this.merchantId}/products/${productId}`;
+            const name = `accounts/${this.merchantId}/products/${offerId}`;
             const request = {name};
 
             const [response] = await this.productsClient.getProduct(request);
@@ -166,31 +166,6 @@ class GoogleShoppingService {
             };
         } catch (error) {
             console.error('Error listing merchant accounts:', error);
-            throw error;
-        }
-    }
-
-    async registerGcpProject(developerEmail: string): Promise<any> {
-        try {
-            await ensureValidTokens();
-            await this.getMerchantId()
-
-            const parent = `accounts/${this.merchantId}`;
-            const name = `${parent}/developerRegistration`;
-
-            const request = {
-                name: name,
-                developerEmail: developerEmail
-            };
-
-            console.log('Registering GCP project with request:', request);
-
-            const response = await this.developerRegistrationClient.registerGcp(request);
-
-            console.log('GCP registration successful:', response);
-            return response;
-        } catch (error) {
-            console.error('Error registering GCP project:', error);
             throw error;
         }
     }
@@ -254,6 +229,40 @@ class GoogleShoppingService {
 
         } catch (error) {
             console.error('Error getting merchant ID:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Adds email as a user for google cloud project with the Merchant API.
+     *
+     * https://developers.google.com/merchant/api/guides/quickstart#register_your_google_cloud_project
+     * This special funcion is reserved for developers. Only needed one time
+     * when you create your app (webpage) and the GCP project. Once you
+     * enabled Merchant API on your Google console and mapped the domain of
+     * your webpage, is necessary a last step to be done via this function to
+     * tell to console this email is a developer allowed to use the merchant
+     * api.
+     * @param developerEmail
+     */
+    async registerGcpProject(developerEmail: string): Promise<any> {
+        try {
+            await ensureValidTokens();
+            await this.getMerchantId()
+
+            const request = {
+                name: `accounts/${this.merchantId}/developerRegistration`,
+                developerEmail: developerEmail
+            };
+
+            console.log('Registering GCP project with request:', request);
+
+            const res = await this.developerRegistrationClient.registerGcp(request);
+
+            console.log('GCP registration successful:', res);
+            return res;
+        } catch (error) {
+            console.error('Error registering GCP project:', error);
             throw error;
         }
     }
