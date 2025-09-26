@@ -6,7 +6,8 @@
 - **Documentation should be in English**: README files, inline documentation, JSDoc comments, etc.
 - **Git commit messages in English**: All version control messages should use English
 - **Error messages and logs in English**: Any user-facing or debugging messages should be in English
-
+- Honor que source code formatting indentation.
+- 
 ## Project Context
 This is a Google Merchant API integration project using:
 - Node.js with TypeScript
