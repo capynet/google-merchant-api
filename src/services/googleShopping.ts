@@ -27,8 +27,8 @@ class GoogleShoppingService {
     private accountsClient: AccountsServiceClient;
     private developerRegistrationClient: DeveloperRegistrationServiceClient;
     private dataSourcesClient: DataSourcesServiceClient;
-    private readonly merchantId: string;
-    private readonly dataSourceId: string;
+    private merchantId: string;
+    private dataSourceId: string;
 
     private constructor() {
         this.productsClient = new ProductsServiceClient({
@@ -47,8 +47,6 @@ class GoogleShoppingService {
             authClient: oauth2Client
         });
 
-        this.merchantId = '5661333043';
-        this.dataSourceId = '10571493917';
     }
 
     public static getInstance(): GoogleShoppingService {
@@ -79,6 +77,7 @@ class GoogleShoppingService {
     async listProducts(): Promise<IListProductsResponse> {
         try {
             await this.ensureValidTokens();
+            await this.getMerchantId()
 
             const parent = `accounts/${this.merchantId}`;
             const request = {parent};
@@ -104,6 +103,8 @@ class GoogleShoppingService {
     async createProduct(productData: ProductData): Promise<IProduct> {
         try {
             await this.ensureValidTokens();
+            await this.getMerchantId()
+            await this.getApiDataSource()
 
             // Create a unique product ID (offerId)
             const offerId = `product_${Date.now()}`;
@@ -152,6 +153,7 @@ class GoogleShoppingService {
     async getProduct(productId: string): Promise<IProduct> {
         try {
             await this.ensureValidTokens();
+            await this.getMerchantId()
 
             const name = `accounts/${this.merchantId}/products/${productId}`;
             const request = {name};
@@ -188,6 +190,7 @@ class GoogleShoppingService {
     async registerGcpProject(developerEmail: string): Promise<any> {
         try {
             await this.ensureValidTokens();
+            await this.getMerchantId()
 
             const parent = `accounts/${this.merchantId}`;
             const name = `${parent}/developerRegistration`;
@@ -212,6 +215,7 @@ class GoogleShoppingService {
     async listDataSources(): Promise<IDataSource[]> {
         try {
             await this.ensureValidTokens();
+            await this.getMerchantId()
 
             const parent = `accounts/${this.merchantId}`;
             const request = {parent};
@@ -227,46 +231,51 @@ class GoogleShoppingService {
         }
     }
 
-    async hasApiDataSource(): Promise<boolean> {
+    async getApiDataSource(): Promise<void> {
         try {
             const dataSources = await this.listDataSources();
 
-            // Verificar si existe algún datasource con input = API (string "API")
-            const apiDataSource = dataSources.find(ds =>
+            const apiDataSource: IDataSource | undefined = dataSources.find(ds =>
                 ds.input === 'API' || ds.input === datasourceProtos.google.shopping.merchant.datasources.v1.DataSource.Input.API
             );
 
-            if (apiDataSource) {
-                console.log('Found API DataSource:', apiDataSource.name, apiDataSource.displayName);
-                return true;
+            if (apiDataSource !== undefined) {
+                this.dataSourceId = apiDataSource.dataSourceId as string;
             }
 
-            return false;
-        } catch (error) {
-            console.error('Error checking API data source:', error);
-            throw error;
-        }
-    }
 
-    async getApiDataSource(): Promise<IDataSource | null> {
-        try {
-            const dataSources = await this.listDataSources();
-
-            // Buscar el datasource con input = API
-            const apiDataSource = dataSources.find(ds =>
-                ds.input === 'API' || ds.input === datasourceProtos.google.shopping.merchant.datasources.v1.DataSource.Input.API
-            );
-
-            return apiDataSource || null;
         } catch (error) {
             console.error('Error getting API data source:', error);
             throw error;
         }
     }
+
+    async getMerchantId(): Promise<void> {
+
+        try {
+            await this.ensureValidTokens();
+
+            const accounts = await this.listMerchantAccounts();
+
+            if (!accounts.accounts || accounts.accounts.length === 0) {
+                throw new Error('No merchant accounts found');
+            }
+
+            const firstAccount = accounts.accounts[0];
+
+            if (!firstAccount.name) {
+                throw new Error('Account name not found');
+            }
+
+            this.merchantId = firstAccount.accountId as string;
+
+        } catch (error) {
+            console.error('Error getting merchant ID:', error);
+            throw error;
+        }
+    }
 }
 
-// Exportar la instancia singleton
 export const googleShoppingService = GoogleShoppingService.getInstance();
 
-// También exportar la clase por si alguien necesita el tipo
 export {GoogleShoppingService};
