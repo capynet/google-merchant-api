@@ -25,8 +25,7 @@ async function requireContentScope(req: any, res: any, next: NextFunction): Prom
 router.get('/products', requireContentScope, async (req: any, res: any) => {
     try {
         // Get merchantId from query param or use the first available account
-        const merchantId = '5661333043';
-        const products = await googleShoppingService.listProducts(merchantId);
+        const products = await googleShoppingService.listProducts();
 
         res.render('products', {
             products,
@@ -43,7 +42,6 @@ router.post('/products/create', requireContentScope, async (req: any, res: any) 
   const { title, description, price, brand, link, imageLink } = req.body;
 
   try {
-    const targetMerchantId =  '5661333043';
 
     const productData: ProductData = {
       title,
@@ -54,7 +52,7 @@ router.post('/products/create', requireContentScope, async (req: any, res: any) 
       imageLink
     };
 
-    await googleShoppingService.createProduct(targetMerchantId, productData);
+    await googleShoppingService.createProduct(productData);
     res.redirect(`/products`);
   } catch (error) {
     console.error('Error creating product:', error);

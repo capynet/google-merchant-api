@@ -14,6 +14,8 @@ class GoogleShoppingService {
   private accountsClient: AccountsServiceClient;
   private developerRegistrationClient: DeveloperRegistrationServiceClient;
   private dataSourcesClient: DataSourcesServiceClient;
+  private readonly merchantId: string;
+  private readonly dataSourceId: string;
 
   private constructor() {
     this.productsClient = new ProductsServiceClient({
@@ -31,6 +33,9 @@ class GoogleShoppingService {
     this.dataSourcesClient = new DataSourcesServiceClient({
       authClient: oauth2Client
     });
+
+      this.merchantId = '5661333043';
+      this.dataSourceId = '10571493917';
   }
 
   public static getInstance(): GoogleShoppingService {
@@ -58,11 +63,11 @@ class GoogleShoppingService {
     }
   }
 
-  async listProducts(merchantId: string): Promise<GoogleProductsResponse> {
+  async listProducts(): Promise<GoogleProductsResponse> {
     try {
       await this.ensureValidTokens();
 
-      const parent = `accounts/${merchantId}`;
+      const parent = `accounts/${this.merchantId}`;
       const request = { parent };
 
       const iterable = this.productsClient.listProductsAsync(request);
@@ -82,16 +87,16 @@ class GoogleShoppingService {
   }
 
 
-  async createProduct(merchantId: string, productData: ProductData): Promise<protos.google.shopping.merchant.products.v1.IProduct> {
+  async createProduct(productData: ProductData): Promise<protos.google.shopping.merchant.products.v1.IProduct> {
     try {
       await this.ensureValidTokens();
 
       // Create a unique product ID (offerId)
       const offerId = `product_${Date.now()}`;
-      const parent = `accounts/${merchantId}`;
+      const parent = `accounts/${this.merchantId}`;
 
       // Get the first available data source
-      const dataSource = 'accounts/5661333043/dataSources/10571493917';
+      const dataSourcePath = `accounts/${this.merchantId}/dataSources/${this.dataSourceId}`;
 
         const productInput: protos.google.shopping.merchant.products.v1.IProductInput = {
             offerId: offerId,
@@ -115,7 +120,7 @@ class GoogleShoppingService {
       const request = {
         parent: parent,
         productInput: productInput,
-        dataSource: dataSource
+        dataSource: dataSourcePath
       };
 
       console.log('Creating product with request:', JSON.stringify(request, null, 2));
@@ -130,11 +135,11 @@ class GoogleShoppingService {
     }
   }
 
-  async getProduct(merchantId: string, productId: string): Promise<protos.google.shopping.merchant.products.v1.IProduct> {
+  async getProduct(productId: string): Promise<protos.google.shopping.merchant.products.v1.IProduct> {
     try {
       await this.ensureValidTokens();
 
-      const name = `accounts/${merchantId}/products/${productId}`;
+      const name = `accounts/${this.merchantId}/products/${productId}`;
       const request = { name };
 
       const [response] = await this.productsClient.getProduct(request);
@@ -143,12 +148,6 @@ class GoogleShoppingService {
       console.error('Error getting product:', error);
       throw error;
     }
-  }
-
-  async deleteProduct(merchantId: string, productId: string): Promise<void> {
-    // TODO: La nueva API no tiene método delete directo
-    // Los productos se eliminan a través del data source
-    throw new Error('Delete product not implemented yet with new Merchant API.');
   }
 
   async listMerchantAccounts(): Promise<MerchantAccountsResponse> {
@@ -176,11 +175,11 @@ class GoogleShoppingService {
     }
   }
 
-  async registerGcpProject(merchantId: number, developerEmail: string): Promise<any> {
+  async registerGcpProject(developerEmail: string): Promise<any> {
     try {
       await this.ensureValidTokens();
 
-      const parent = `accounts/${merchantId}`;
+      const parent = `accounts/${this.merchantId}`;
       const name = `${parent}/developerRegistration`;
 
       const request = {
@@ -200,11 +199,11 @@ class GoogleShoppingService {
     }
   }
 
-  async listDataSources(merchantId: string): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource[]> {
+  async listDataSources(): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource[]> {
     try {
       await this.ensureValidTokens();
 
-      const parent = `accounts/${merchantId}`;
+      const parent = `accounts/${this.merchantId}`;
       const request = { parent };
 
       const [dataSources] = await this.dataSourcesClient.listDataSources(request);
@@ -218,9 +217,9 @@ class GoogleShoppingService {
     }
   }
 
-  async hasApiDataSource(merchantId: string): Promise<boolean> {
+  async hasApiDataSource(): Promise<boolean> {
     try {
-      const dataSources = await this.listDataSources(merchantId);
+      const dataSources = await this.listDataSources();
 
       // Verificar si existe algún datasource con input = API (string "API")
       const apiDataSource = dataSources.find(ds =>
@@ -239,9 +238,9 @@ class GoogleShoppingService {
     }
   }
 
-  async getApiDataSource(merchantId: string): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource | null> {
+  async getApiDataSource(): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource | null> {
     try {
-      const dataSources = await this.listDataSources(merchantId);
+      const dataSources = await this.listDataSources();
 
       // Buscar el datasource con input = API
       const apiDataSource = dataSources.find(ds =>

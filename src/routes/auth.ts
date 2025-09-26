@@ -74,12 +74,11 @@ router.post('/auth/register-gcp', async (req: any, res: any) => {
     return;
   }
 
-  const merchantId  = 5661333043;
   const developerEmail = 'capy.net@gmail.com';
 
   try {
     oauth2Client.setCredentials(req.session.tokens);
-    const result = await googleShoppingService.registerGcpProject(merchantId, developerEmail);
+    const result = await googleShoppingService.registerGcpProject(developerEmail);
     res.json({
       success: true,
       data: result,
