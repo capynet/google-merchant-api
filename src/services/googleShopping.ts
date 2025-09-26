@@ -1,12 +1,24 @@
 import {ProductsServiceClient, ProductInputsServiceClient, protos as productProtos} from '@google-shopping/products';
-import {AccountsServiceClient, DeveloperRegistrationServiceClient} from '@google-shopping/accounts';
+import {AccountsServiceClient, DeveloperRegistrationServiceClient, protos as accountProtos} from '@google-shopping/accounts';
 import {DataSourcesServiceClient, protos as datasourceProtos} from '@google-shopping/datasources';
 import {oauth2Client} from '../config/oauth';
-import {ProductData, GoogleProductsResponse, MerchantAccountsResponse} from '../types';
 
 type IProduct = productProtos.google.shopping.merchant.products.v1.IProduct;
 type IProductInput = productProtos.google.shopping.merchant.products.v1.IProductInput;
+type IListProductsResponse = productProtos.google.shopping.merchant.products.v1.IListProductsResponse;
 type IDataSource = datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource;
+type IAccount = accountProtos.google.shopping.merchant.accounts.v1.IAccount;
+type IListAccountsResponse = accountProtos.google.shopping.merchant.accounts.v1.IListAccountsResponse;
+
+export interface ProductData {
+    title?: string;
+    description?: string;
+    link?: string;
+    imageLink?: string;
+    price?: string;
+    brand?: string;
+    gtin?: string;
+}
 
 class GoogleShoppingService {
     private static instance: GoogleShoppingService;
@@ -64,7 +76,7 @@ class GoogleShoppingService {
         }
     }
 
-    async listProducts(): Promise<GoogleProductsResponse> {
+    async listProducts(): Promise<IListProductsResponse> {
         try {
             await this.ensureValidTokens();
 
@@ -72,14 +84,15 @@ class GoogleShoppingService {
             const request = {parent};
 
             const iterable = this.productsClient.listProductsAsync(request);
-            const products: any[] = [];
+            const products: IProduct[] = [];
 
             for await (const response of iterable) {
                 products.push(response);
             }
 
             return {
-                resources: products
+                products: products,
+                nextPageToken: null  // Pagination not implemented yet
             };
         } catch (error) {
             console.error('Error listing products:', error);
@@ -151,24 +164,20 @@ class GoogleShoppingService {
         }
     }
 
-    async listMerchantAccounts(): Promise<MerchantAccountsResponse> {
+    async listMerchantAccounts(): Promise<IListAccountsResponse> {
         try {
             await this.ensureValidTokens();
 
             const iterable = this.accountsClient.listAccountsAsync({});
-            const accounts: any[] = [];
+            const accounts: IAccount[] = [];
 
             for await (const account of iterable) {
-                // Transform the account data to match our interface
-                accounts.push({
-                    accountId: account.name?.split('/').pop() || '', // Extract account ID from name
-                    accountName: account.accountName,
-                    name: account.name
-                });
+                accounts.push(account);
             }
 
             return {
-                resources: accounts
+                accounts: accounts,
+                nextPageToken: null  // Pagination not implemented yet
             };
         } catch (error) {
             console.error('Error listing merchant accounts:', error);

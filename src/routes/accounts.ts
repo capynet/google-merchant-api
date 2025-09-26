@@ -22,8 +22,12 @@ async function requireContentScope(req: any, res: any, next: NextFunction): Prom
 
 router.get('/api/accounts', requireContentScope, async (req: any, res: any) => {
     try {
-        const accounts = await googleShoppingService.listMerchantAccounts();
-        res.json(accounts);
+        const response = await googleShoppingService.listMerchantAccounts();
+        // Send the full response with accounts array
+        res.json({
+            accounts: response.accounts || [],
+            nextPageToken: response.nextPageToken
+        });
     } catch (error) {
         console.error('Error fetching merchant accounts:', error);
         res.status(500).json({

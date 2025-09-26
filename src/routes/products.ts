@@ -1,7 +1,6 @@
 import {Router, NextFunction} from 'express';
-import {googleShoppingService} from '../services/googleShopping';
+import {googleShoppingService, ProductData} from '../services/googleShopping';
 import {oauth2Client, hasContentScope} from '../config/oauth';
-import {ProductData} from '../types';
 import {DataSourcesServiceClient, protos} from '@google-shopping/datasources';
 
 const router: Router = Router();
@@ -24,11 +23,11 @@ async function requireContentScope(req: any, res: any, next: NextFunction): Prom
 
 router.get('/products', requireContentScope, async (req: any, res: any) => {
     try {
-        // Get merchantId from query param or use the first available account
-        const products = await googleShoppingService.listProducts();
+        // Get products from the service
+        const response = await googleShoppingService.listProducts();
 
         res.render('products', {
-            products,
+            products: { resources: response.products || [] },
             error: req.query.error,
             success: req.query.success
         });
