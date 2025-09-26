@@ -63,8 +63,13 @@ router.get('/auth/register-gcp', async (req: any, res: any) => {
         return;
     }
 
+    const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID || 'Unknown Project';
+    const developerEmail = req.session?.user?.email || 'Unknown Email';
+
     res.render('register-gcp', {
-        title: 'Register GCP Project'
+        title: 'Register GCP Project',
+        projectId,
+        developerEmail
     });
 });
 
@@ -99,6 +104,29 @@ router.post('/auth/register-gcp', async (req: any, res: any) => {
                 details: error.message || 'Unknown error occurred'
             });
         }
+    }
+});
+
+router.post('/auth/unregister-gcp', async (req: any, res: any) => {
+    if (!req.session?.tokens) {
+        res.status(401).json({error: 'Authentication required'});
+        return;
+    }
+
+    try {
+        oauth2Client.setCredentials(req.session.tokens);
+        const result = await googleShoppingService.unregisterGcpProject();
+        res.json({
+            success: true,
+            data: result,
+            message: 'GCP project unregistered successfully.'
+        });
+    } catch (error: any) {
+        console.error('Error unregistering GCP project:', error);
+        res.status(500).json({
+            error: 'Failed to unregister GCP project',
+            details: error.message || 'Unknown error occurred'
+        });
     }
 });
 

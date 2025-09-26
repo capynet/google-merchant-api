@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-session-secret-key',
+    secret: 'your-session-secret-key',
     resave: true, // Force save session on every request
     saveUninitialized: true, // Save uninitialized sessions
     name: 'merchant-session',
@@ -51,10 +51,24 @@ app.use(session({
 app.get('/', async (req: any, res: any) => {
     const isLoggedIn = !!req.session?.tokens;
     const user = req.session?.user;
+    let developerRegistration = null;
+
+    if (isLoggedIn) {
+        try {
+            const {oauth2Client} = await import('./config/oauth');
+            oauth2Client.setCredentials(req.session.tokens);
+
+            const {googleShoppingService} = await import('./services/googleShopping');
+            developerRegistration = await googleShoppingService.getDeveloperRegistration();
+        } catch (error) {
+            console.log('No developer registration found or error fetching:', error);
+        }
+    }
 
     res.render('index', {
         isLoggedIn,
         user,
+        developerRegistration,
         title: 'Google Shopping Merchant Sample'
     });
 });

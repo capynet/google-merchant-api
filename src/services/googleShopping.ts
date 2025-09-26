@@ -266,6 +266,54 @@ class GoogleShoppingService {
             throw error;
         }
     }
+
+    /**
+     * Unregisters the GCP project from the Merchant API.
+     */
+    async unregisterGcpProject(): Promise<any> {
+        try {
+            await ensureValidTokens();
+            await this.getMerchantId();
+
+            const request = {
+                name: `accounts/${this.merchantId}/developerRegistration`
+            };
+
+            console.log('Unregistering GCP project with request:', request);
+
+            const res = await this.developerRegistrationClient.unregisterGcp(request);
+
+            console.log('GCP unregistration successful:', res);
+            return res;
+        } catch (error) {
+            console.error('Error unregistering GCP project:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Gets the developer registration information.
+     */
+    async getDeveloperRegistration(): Promise<any> {
+        try {
+            await ensureValidTokens();
+            await this.getMerchantId();
+
+            const request = {
+                name: `accounts/${this.merchantId}/developerRegistration`
+            };
+
+            console.log('Getting developer registration with request:', request);
+
+            const res = await this.developerRegistrationClient.getDeveloperRegistration(request);
+
+            console.log('Developer registration info:', res);
+            return res;
+        } catch (error) {
+            console.error('Error getting developer registration:', error);
+            throw error;
+        }
+    }
 }
 
 export const googleShoppingService = GoogleShoppingService.getInstance();

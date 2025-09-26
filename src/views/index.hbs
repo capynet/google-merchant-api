@@ -2,13 +2,28 @@
     <h1>Google Shopping Merchant Sample</h1>
 
     {{#if isLoggedIn}}
-            <h3><strong>Logged in as:</strong> {{user.email}}</h3>
+        <h3><strong>Logged in as:</strong> {{user.email}}</h3>
+
 
         <div class="user-info">
             <p>This action should be triggered once. At this point probably you configured a new project at https://console.cloud.google.com, added oauth login and enabled the Merchant API</p>
             <p>But there is one more step in order to be able to pull information from https://merchants.google.com/ using this app and is to add yourself to the project as developer. This button does the trick.</p>
             <p>For more details access to https://developers.google.com/merchant/api/guides/quickstart#register_your_google_cloud_project</p>
-            <a href="/auth/register-gcp" class="btn btn-info">Register GCP Project</a>
+
+            {{#if developerRegistration}}
+                <div class="user-info">
+                    <h3>Developer Registration Status</h3>
+                    <p><strong>Developer Email:</strong> {{developerRegistration.developerEmail}}</p>
+                    <p><strong>Registration Name:</strong> {{developerRegistration.name}}</p>
+                    <p><strong>Status:</strong> <span style="color: green;">Registered</span></p>
+                </div>
+            {{/if}}
+
+
+            <div>
+                <a href="/auth/register-gcp" class="btn btn-info">Register GCP Project</a>
+                <a href="/auth/unregister-gcp" class="btn btn-warning" style="margin-left: 10px;">Unregister GCP Project</a>
+            </div>
         </div>
 
         <div class="user-info">
