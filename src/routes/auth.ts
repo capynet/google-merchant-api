@@ -1,9 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { getAuthUrl, setCredentials, oauth2Client } from '../config/oauth';
-import { GoogleShoppingService } from '../services/googleShopping';
+import { googleShoppingService } from '../services/googleShopping';
 
 const router: Router = Router();
-const shoppingService = new GoogleShoppingService();
 
 router.get('/auth/google', async (req: Request, res: Response) => {
   const authUrl = getAuthUrl(false); // Solo scopes básicos
@@ -80,7 +79,7 @@ router.post('/auth/register-gcp', async (req: any, res: any) => {
 
   try {
     oauth2Client.setCredentials(req.session.tokens);
-    const result = await shoppingService.registerGcpProject(merchantId, developerEmail);
+    const result = await googleShoppingService.registerGcpProject(merchantId, developerEmail);
     res.json({
       success: true,
       data: result,

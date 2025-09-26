@@ -1,11 +1,10 @@
 import { Router, NextFunction } from 'express';
-import { GoogleShoppingService } from '../services/googleShopping';
+import { googleShoppingService } from '../services/googleShopping';
 import { oauth2Client, hasContentScope } from '../config/oauth';
 import { ProductData } from '../types';
 import { DataSourcesServiceClient, protos } from '@google-shopping/datasources';
 
 const router: Router = Router();
-const shoppingService = new GoogleShoppingService();
 
 async function requireContentScope(req: any, res: any, next: NextFunction): Promise<void> {
   if (!req.session?.tokens) {
@@ -27,7 +26,7 @@ router.get('/products', requireContentScope, async (req: any, res: any) => {
     try {
         // Get merchantId from query param or use the first available account
         const merchantId = '5661333043';
-        const products = await shoppingService.listProducts(merchantId);
+        const products = await googleShoppingService.listProducts(merchantId);
 
         res.render('products', {
             products,
@@ -55,7 +54,7 @@ router.post('/products/create', requireContentScope, async (req: any, res: any) 
       imageLink
     };
 
-    await shoppingService.createProduct(targetMerchantId, productData);
+    await googleShoppingService.createProduct(targetMerchantId, productData);
     res.redirect(`/products`);
   } catch (error) {
     console.error('Error creating product:', error);

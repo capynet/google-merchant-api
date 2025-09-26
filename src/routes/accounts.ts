@@ -1,9 +1,8 @@
 import { Router, NextFunction } from 'express';
-import { GoogleShoppingService } from '../services/googleShopping';
+import { googleShoppingService } from '../services/googleShopping';
 import { oauth2Client, hasContentScope } from '../config/oauth';
 
 const router: Router = Router();
-const shoppingService = new GoogleShoppingService();
 
 async function requireContentScope(req: any, res: any, next: NextFunction): Promise<void> {
   if (!req.session?.tokens) {
@@ -23,7 +22,7 @@ async function requireContentScope(req: any, res: any, next: NextFunction): Prom
 
 router.get('/api/accounts', requireContentScope, async (req: any, res: any) => {
   try {
-    const accounts = await shoppingService.listMerchantAccounts();
+    const accounts = await googleShoppingService.listMerchantAccounts();
     res.json(accounts);
   } catch (error) {
     console.error('Error fetching merchant accounts:', error);

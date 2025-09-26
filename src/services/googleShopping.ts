@@ -3,18 +3,19 @@ import { ProductsServiceClient, ProductInputsServiceClient, protos } from '@goog
 // @ts-ignore - El paquete no tiene tipos perfectos
 import { AccountsServiceClient, DeveloperRegistrationServiceClient } from '@google-shopping/accounts';
 // @ts-ignore - El paquete no tiene tipos perfectos
-import { DataSourcesServiceClient } from '@google-shopping/datasources';
+import { DataSourcesServiceClient, protos as datasourceProtos } from '@google-shopping/datasources';
 import { oauth2Client } from '../config/oauth';
 import {ProductData, GoogleProductsResponse, MerchantAccountsResponse} from '../types';
 
-export class GoogleShoppingService {
+class GoogleShoppingService {
+  private static instance: GoogleShoppingService;
   private productsClient: ProductsServiceClient;
   private productInputsClient: ProductInputsServiceClient;
   private accountsClient: AccountsServiceClient;
   private developerRegistrationClient: DeveloperRegistrationServiceClient;
   private dataSourcesClient: DataSourcesServiceClient;
 
-  constructor() {
+  private constructor() {
     this.productsClient = new ProductsServiceClient({
       authClient: oauth2Client
     });
@@ -30,6 +31,13 @@ export class GoogleShoppingService {
     this.dataSourcesClient = new DataSourcesServiceClient({
       authClient: oauth2Client
     });
+  }
+
+  public static getInstance(): GoogleShoppingService {
+    if (!GoogleShoppingService.instance) {
+      GoogleShoppingService.instance = new GoogleShoppingService();
+    }
+    return GoogleShoppingService.instance;
   }
 
   // Ensure tokens are fresh before API calls
@@ -191,4 +199,65 @@ export class GoogleShoppingService {
       throw error;
     }
   }
+
+  async listDataSources(merchantId: string): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource[]> {
+    try {
+      await this.ensureValidTokens();
+
+      const parent = `accounts/${merchantId}`;
+      const request = { parent };
+
+      const [dataSources] = await this.dataSourcesClient.listDataSources(request);
+
+      console.log('Found dataSources:', dataSources);
+
+      return dataSources;
+    } catch (error) {
+      console.error('Error listing data sources:', error);
+      throw error;
+    }
+  }
+
+  async hasApiDataSource(merchantId: string): Promise<boolean> {
+    try {
+      const dataSources = await this.listDataSources(merchantId);
+
+      // Verificar si existe algún datasource con input = API (string "API")
+      const apiDataSource = dataSources.find(ds =>
+        ds.input === 'API' || ds.input === datasourceProtos.google.shopping.merchant.datasources.v1.DataSource.Input.API
+      );
+
+      if (apiDataSource) {
+        console.log('Found API DataSource:', apiDataSource.name, apiDataSource.displayName);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error checking API data source:', error);
+      throw error;
+    }
+  }
+
+  async getApiDataSource(merchantId: string): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource | null> {
+    try {
+      const dataSources = await this.listDataSources(merchantId);
+
+      // Buscar el datasource con input = API
+      const apiDataSource = dataSources.find(ds =>
+        ds.input === 'API' || ds.input === datasourceProtos.google.shopping.merchant.datasources.v1.DataSource.Input.API
+      );
+
+      return apiDataSource || null;
+    } catch (error) {
+      console.error('Error getting API data source:', error);
+      throw error;
+    }
+  }
 }
+
+// Exportar la instancia singleton
+export const googleShoppingService = GoogleShoppingService.getInstance();
+
+// También exportar la clase por si alguien necesita el tipo
+export { GoogleShoppingService };
