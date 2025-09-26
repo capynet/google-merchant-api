@@ -1,11 +1,12 @@
-// @ts-ignore - El paquete no tiene tipos perfectos
-import {ProductsServiceClient, ProductInputsServiceClient, protos} from '@google-shopping/products';
-// @ts-ignore - El paquete no tiene tipos perfectos
+import {ProductsServiceClient, ProductInputsServiceClient, protos as productProtos} from '@google-shopping/products';
 import {AccountsServiceClient, DeveloperRegistrationServiceClient} from '@google-shopping/accounts';
-// @ts-ignore - El paquete no tiene tipos perfectos
 import {DataSourcesServiceClient, protos as datasourceProtos} from '@google-shopping/datasources';
 import {oauth2Client} from '../config/oauth';
 import {ProductData, GoogleProductsResponse, MerchantAccountsResponse} from '../types';
+
+type IProduct = productProtos.google.shopping.merchant.products.v1.IProduct;
+type IProductInput = productProtos.google.shopping.merchant.products.v1.IProductInput;
+type IDataSource = datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource;
 
 class GoogleShoppingService {
     private static instance: GoogleShoppingService;
@@ -87,7 +88,7 @@ class GoogleShoppingService {
     }
 
 
-    async createProduct(productData: ProductData): Promise<protos.google.shopping.merchant.products.v1.IProduct> {
+    async createProduct(productData: ProductData): Promise<IProduct> {
         try {
             await this.ensureValidTokens();
 
@@ -98,7 +99,7 @@ class GoogleShoppingService {
             // Get the first available data source
             const dataSourcePath = `accounts/${this.merchantId}/dataSources/${this.dataSourceId}`;
 
-            const productInput: protos.google.shopping.merchant.products.v1.IProductInput = {
+            const productInput: IProductInput = {
                 offerId: offerId,
                 contentLanguage: 'en',
                 feedLabel: 'FEED_THING',
@@ -112,8 +113,8 @@ class GoogleShoppingService {
                         currencyCode: 'USD'
                     },
                     brand: productData.brand,
-                    condition: protos.google.shopping.merchant.products.v1.Condition.NEW,
-                    availability: protos.google.shopping.merchant.products.v1.Availability.IN_STOCK
+                    condition: productProtos.google.shopping.merchant.products.v1.Condition.NEW,
+                    availability: productProtos.google.shopping.merchant.products.v1.Availability.IN_STOCK
                 }
             };
 
@@ -135,7 +136,7 @@ class GoogleShoppingService {
         }
     }
 
-    async getProduct(productId: string): Promise<protos.google.shopping.merchant.products.v1.IProduct> {
+    async getProduct(productId: string): Promise<IProduct> {
         try {
             await this.ensureValidTokens();
 
@@ -143,7 +144,7 @@ class GoogleShoppingService {
             const request = {name};
 
             const [response] = await this.productsClient.getProduct(request);
-            return response as any;
+            return response as IProduct;
         } catch (error) {
             console.error('Error getting product:', error);
             throw error;
@@ -199,7 +200,7 @@ class GoogleShoppingService {
         }
     }
 
-    async listDataSources(): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource[]> {
+    async listDataSources(): Promise<IDataSource[]> {
         try {
             await this.ensureValidTokens();
 
@@ -238,7 +239,7 @@ class GoogleShoppingService {
         }
     }
 
-    async getApiDataSource(): Promise<datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource | null> {
+    async getApiDataSource(): Promise<IDataSource | null> {
         try {
             const dataSources = await this.listDataSources();
 
