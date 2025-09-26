@@ -7,14 +7,13 @@
     "build": "vite build",
     "start": "node dist/app.js",
     "dev": "vite",
-    "dev:node": "nodemon --exec ts-node src/app.ts",
     "prod": "pnpm run build && pnpm start",
     "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
     "preview": "vite preview"
   },
   "keywords": [],
-  "author": "",
+  "author": "Marcelo Tosco",
   "license": "ISC",
   "dependencies": {
     "@google-shopping/accounts": "^3.0.0",
@@ -34,7 +33,6 @@
     "@types/express-handlebars": "^6.0.2",
     "@types/express-session": "^1.18.2",
     "@types/node": "^24.5.2",
-    "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
