@@ -74,7 +74,7 @@ router.post('/auth/register-gcp', async (req: any, res: any) => {
         return;
     }
 
-    const developerEmail = 'capy.net@gmail.com';
+    const developerEmail = req.session.user.email;
 
     try {
         oauth2Client.setCredentials(req.session.tokens);

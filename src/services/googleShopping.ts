@@ -248,7 +248,7 @@ class GoogleShoppingService {
     async registerGcpProject(developerEmail: string): Promise<any> {
         try {
             await ensureValidTokens();
-            await this.getMerchantId()
+            await this.getMerchantId();
 
             const request = {
                 name: `accounts/${this.merchantId}/developerRegistration`,
