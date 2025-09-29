@@ -17,6 +17,9 @@ importers:
       '@google-shopping/products':
         specifier: ^0.7.0
         version: 0.7.0
+      '@google-shopping/reports':
+        specifier: ^0.13.0
+        version: 0.13.0
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -239,6 +242,10 @@ packages:
 
   '@google-shopping/products@0.7.0':
     resolution: {integrity: sha512-zqUPlyoGtQbwhNYk9Sjx9jBFLnDprgbQsIL0QaX7qoVPdB2F8fW5fWMrvtxIUuAPzZTzmUzhVLSSyyRi+RL8JA==}
+    engines: {node: '>=18'}
+
+  '@google-shopping/reports@0.13.0':
+    resolution: {integrity: sha512-yWwBHWie+7pFBja41R7+2HvpwfeNAgMu/kSTWONRV6Ep4fcO/AP0PQE+UEFrN8MSp/BVG/lB4/LsMOUXHNBapA==}
     engines: {node: '>=18'}
 
   '@grpc/grpc-js@1.14.0':
@@ -1448,6 +1455,12 @@ snapshots:
       - supports-color
 
   '@google-shopping/products@0.7.0':
+    dependencies:
+      google-gax: 5.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@google-shopping/reports@0.13.0':
     dependencies:
       google-gax: 5.0.3
     transitivePeerDependencies:

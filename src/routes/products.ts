@@ -36,6 +36,35 @@ router.get('/products', requireContentScope, async (req: any, res: any) => {
     }
 });
 
+router.get('/products/filtered', requireContentScope, async (req: any, res: any) => {
+    try {
+        const options = {
+            filters: {
+                offer_id: ['TEST_PRODUCT_1759147361903_3', 'TEST_PRODUCT_1759147377697_59']
+            },
+            fields: ['id', 'offer_id', 'title', 'availability'],
+            maxResults: 100
+        };
+
+        console.log('Fetching filtered products with static options:', options);
+
+        const products = await googleShoppingService.getFilteredProducts(options);
+
+        res.json({
+            success: true,
+            count: products.length,
+            query: options,
+            products: products
+        });
+    } catch (error) {
+        console.error('Error fetching filtered products:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch filtered products: ' + (error as Error).message
+        });
+    }
+});
+
 router.post('/products/create', requireContentScope, async (req: any, res: any) => {
     try {
         await googleShoppingService.createProduct(req.body);

@@ -19,6 +19,7 @@
     "@google-shopping/accounts": "^3.0.0",
     "@google-shopping/datasources": "^0.9.0",
     "@google-shopping/products": "^0.7.0",
+    "@google-shopping/reports": "^0.13.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
