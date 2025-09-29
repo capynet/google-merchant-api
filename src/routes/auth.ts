@@ -1,6 +1,6 @@
 import {Router, Request, Response} from 'express';
 import {getAuthUrl, setCredentials, oauth2Client} from '../config/oauth';
-import {googleShoppingService} from '../services/googleShopping';
+import {GoogleShoppingServiceAdmin} from "../services/googleShoppingAdmin";
 
 const router: Router = Router();
 
@@ -83,7 +83,8 @@ router.post('/auth/register-gcp', async (req: any, res: any) => {
 
     try {
         oauth2Client.setCredentials(req.session.tokens);
-        const result = await googleShoppingService.registerGcpProject(developerEmail);
+        const googleShoppingServiceAdmin = new GoogleShoppingServiceAdmin(oauth2Client, '5660240742');
+        const result = await googleShoppingServiceAdmin.registerGcpProject(developerEmail);
         res.json({
             success: true,
             data: result,
@@ -115,7 +116,8 @@ router.get('/auth/unregister-gcp', async (req: any, res: any) => {
 
     try {
         oauth2Client.setCredentials(req.session.tokens);
-        const result = await googleShoppingService.unregisterGcpProject();
+        const googleShoppingServiceAdmin = new GoogleShoppingServiceAdmin(oauth2Client, '5660240742');
+        const result = await googleShoppingServiceAdmin.unregisterGcpProject();
         res.json({
             success: true,
             data: result,

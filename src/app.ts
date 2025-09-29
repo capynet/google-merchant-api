@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import productRoutes from './routes/products';
 import accountRoutes from './routes/accounts';
+import {GoogleShoppingServiceAdmin} from "./services/googleShoppingAdmin";
 
 dotenv.config();
 
@@ -58,8 +59,8 @@ app.get('/', async (req: any, res: any) => {
             const {oauth2Client} = await import('./config/oauth');
             oauth2Client.setCredentials(req.session.tokens);
 
-            const {googleShoppingService} = await import('./services/googleShopping');
-            developerRegistration = await googleShoppingService.getDeveloperRegistration();
+            const googleShoppingServiceAdmin = new GoogleShoppingServiceAdmin(oauth2Client, '5660240742');
+            developerRegistration = await googleShoppingServiceAdmin.getDeveloperRegistration();
         } catch (error) {
             console.log('No developer registration found or error fetching:', error);
         }
