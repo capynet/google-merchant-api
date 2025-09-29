@@ -8,16 +8,6 @@ type IProductInput = productProtos.google.shopping.merchant.products.v1.IProduct
 type IDataSource = datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource;
 type IAccount = accountProtos.google.shopping.merchant.accounts.v1.IAccount;
 
-export interface ProductData {
-    title?: string;
-    description?: string;
-    link?: string;
-    imageLink?: string;
-    price?: string;
-    brand?: string;
-    gtin?: string;
-}
-
 class GoogleShoppingService {
     private static instance: GoogleShoppingService;
     private productsClient: ProductsServiceClient;
@@ -74,23 +64,19 @@ class GoogleShoppingService {
     }
 
 
-    async createProduct(productData: ProductData): Promise<IProduct> {
+    async createProduct(productData: Record<any, any>): Promise<IProduct> {
         try {
             await ensureValidTokens();
             await this.getMerchantId()
             await this.getApiDataSource()
 
-            // Create a unique product ID (offerId)
-            const offerId = `product_${Date.now()}`;
             const parent = `accounts/${this.merchantId}`;
-
-            // Get the first available data source
             const dataSourcePath = `accounts/${this.merchantId}/dataSources/${this.dataSourceId}`;
 
             const productInput: IProductInput = {
-                offerId: offerId,
-                contentLanguage: 'en',
-                feedLabel: 'FEED_THING',
+                offerId: productData.offerId,
+                contentLanguage: productData.contentLang,
+                feedLabel: productData.feedLabel,
                 productAttributes: {
                     title: productData.title,
                     description: productData.description,
@@ -98,11 +84,11 @@ class GoogleShoppingService {
                     imageLink: productData.imageLink,
                     price: {
                         amountMicros: (parseFloat(productData.price || '0') * 1000000).toString(),
-                        currencyCode: 'USD'
+                        currencyCode: productData.currencyCode
                     },
                     brand: productData.brand,
-                    condition: productProtos.google.shopping.merchant.products.v1.Condition.NEW,
-                    availability: productProtos.google.shopping.merchant.products.v1.Availability.IN_STOCK
+                    condition: productData.condition,
+                    availability: productData.availability
                 }
             };
 

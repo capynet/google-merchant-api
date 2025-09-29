@@ -27,7 +27,7 @@ router.get('/products', requireContentScope, async (req: any, res: any) => {
         const products = await googleShoppingService.listProducts();
 
         res.render('products', {
-            products: { resources: products || [] },
+            products: {resources: products || []},
             error: req.query.error,
             success: req.query.success
         });
@@ -38,20 +38,8 @@ router.get('/products', requireContentScope, async (req: any, res: any) => {
 });
 
 router.post('/products/create', requireContentScope, async (req: any, res: any) => {
-    const {title, description, price, brand, link, imageLink} = req.body;
-
     try {
-
-        const productData: ProductData = {
-            title,
-            description,
-            price,
-            brand,
-            link,
-            imageLink
-        };
-
-        await googleShoppingService.createProduct(productData);
+        await googleShoppingService.createProduct(req.body);
         res.redirect(`/products`);
     } catch (error) {
         console.error('Error creating product:', error);
