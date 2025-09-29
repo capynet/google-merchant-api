@@ -20,7 +20,11 @@
     <div class="create-form" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2>Create New Product</h2>
-
+            <form method="POST" action="/products/generate-bulk" style="display: inline;">
+                <button type="submit" class="btn" style="background: #28a745;" onclick="return confirm('This will generate 200 test products. Continue?')">
+                    Generate 200 Test Products
+                </button>
+            </form>
         </div>
         <form method="POST" action="/products/create">
             <div class="form-group" style="margin: 15px 0;">

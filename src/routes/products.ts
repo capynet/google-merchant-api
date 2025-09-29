@@ -79,4 +79,78 @@ router.post('/products/datasource', requireContentScope, async (req: any, res: a
     }
 });
 
+router.post('/products/generate-bulk', requireContentScope, async (req: any, res: any) => {
+    try {
+        const numberOfProducts = 200;
+        const results = {
+            created: 0,
+            failed: 0,
+            errors: [] as string[]
+        };
+
+        console.log(`Starting bulk generation of ${numberOfProducts} products...`);
+
+        // Generate products in batches to avoid overwhelming the API
+        const batchSize = 10;
+        const batches = Math.ceil(numberOfProducts / batchSize);
+
+        for (let batch = 0; batch < batches; batch++) {
+            const batchStart = batch * batchSize;
+            const batchEnd = Math.min(batchStart + batchSize, numberOfProducts);
+
+            const promises = [];
+
+            for (let i = batchStart; i < batchEnd; i++) {
+                const productData = {
+                    offerId: `TEST_PRODUCT_${Date.now()}_${i}`,
+                    feedLabel: 'FEED_THING',
+                    contentLang: 'en',
+                    title: `Test Product ${i + 1}`,
+                    description: `This is a test product number ${i + 1}. It includes various features and specifications that make it suitable for testing purposes.`,
+                    link: `https://example.com/products/test-product-${i + 1}`,
+                    imageLink: `https://picsum.photos/seed/product/600/400`,
+                    price: (Math.random() * 900 + 10).toFixed(2),
+                    currencyCode: 'USD',
+                    brand: ['TestBrand', 'SampleBrand', 'DemoBrand', 'ExampleCo'][Math.floor(Math.random() * 4)],
+                    condition: ['NEW', 'REFURBISHED', 'USED'][Math.floor(Math.random() * 3)],
+                    availability: ['IN_STOCK', 'OUT_OF_STOCK', 'PREORDER'][Math.floor(Math.random() * 3)]
+                };
+
+                promises.push(
+                    googleShoppingService.createProduct(productData)
+                        .then(() => {
+                            results.created++;
+                            console.log(`Created product ${i + 1}/${numberOfProducts}`);
+                        })
+                        .catch((error) => {
+                            results.failed++;
+                            results.errors.push(`Product ${i + 1}: ${error.message}`);
+                            console.error(`Failed to create product ${i + 1}:`, error.message);
+                        })
+                );
+            }
+
+            // Wait for batch to complete before starting next batch
+            await Promise.all(promises);
+
+            // Add a small delay between batches to avoid rate limiting
+            if (batch < batches - 1) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
+        console.log(`Bulk generation completed: ${results.created} created, ${results.failed} failed`);
+
+        let message = `Generated ${results.created} products successfully`;
+        if (results.failed > 0) {
+            message += ` (${results.failed} failed)`;
+        }
+
+        res.redirect(`/products?success=${encodeURIComponent(message)}`);
+    } catch (error) {
+        console.error('Error generating bulk products:', error);
+        res.redirect('/products?error=' + encodeURIComponent('Failed to generate products: ' + (error as Error).message));
+    }
+});
+
 export default router;
