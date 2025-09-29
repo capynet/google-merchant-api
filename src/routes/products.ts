@@ -1,5 +1,5 @@
 import {Router, NextFunction} from 'express';
-import {googleShoppingService, ProductData} from '../services/googleShopping';
+import {googleShoppingService} from '../services/googleShopping';
 import {oauth2Client, hasContentScope} from '../config/oauth';
 import {DataSourcesServiceClient, protos} from '@google-shopping/datasources';
 
@@ -23,7 +23,6 @@ async function requireContentScope(req: any, res: any, next: NextFunction): Prom
 
 router.get('/products', requireContentScope, async (req: any, res: any) => {
     try {
-        // Get products from the service
         const products = await googleShoppingService.listProducts();
 
         res.render('products', {
@@ -51,12 +50,10 @@ router.post('/products/datasource', requireContentScope, async (req: any, res: a
     try {
         const merchantId = '5661333043';
 
-        // Crear cliente de DataSources con autenticación OAuth2
         const dataSourcesClient = new DataSourcesServiceClient({
             authClient: oauth2Client,
         });
 
-        // Valores hardcodeados basados en el ejemplo con tipos correctos
         const dataSource: protos.google.shopping.merchant.datasources.v1.IDataSource = {
             displayName: 'API data source',
             primaryProductDataSource: {
@@ -71,7 +68,6 @@ router.post('/products/datasource', requireContentScope, async (req: any, res: a
             dataSource: dataSource
         };
 
-        // Crear el datasource
         const [response] = await dataSourcesClient.createDataSource(request);
         console.log('DataSource created successfully:', response);
 
