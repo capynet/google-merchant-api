@@ -24,10 +24,10 @@ async function requireContentScope(req: any, res: any, next: NextFunction): Prom
 router.get('/products', requireContentScope, async (req: any, res: any) => {
     try {
         // Get products from the service
-        const response = await googleShoppingService.listProducts();
+        const products = await googleShoppingService.listProducts();
 
         res.render('products', {
-            products: { resources: response.products || [] },
+            products: { resources: products || [] },
             error: req.query.error,
             success: req.query.success
         });

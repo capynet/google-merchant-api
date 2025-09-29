@@ -5,10 +5,8 @@ import {oauth2Client, ensureValidTokens} from '../config/oauth';
 
 type IProduct = productProtos.google.shopping.merchant.products.v1.IProduct;
 type IProductInput = productProtos.google.shopping.merchant.products.v1.IProductInput;
-type IListProductsResponse = productProtos.google.shopping.merchant.products.v1.IListProductsResponse;
 type IDataSource = datasourceProtos.google.shopping.merchant.datasources.v1.IDataSource;
 type IAccount = accountProtos.google.shopping.merchant.accounts.v1.IAccount;
-type IListAccountsResponse = accountProtos.google.shopping.merchant.accounts.v1.IListAccountsResponse;
 
 export interface ProductData {
     title?: string;
@@ -57,7 +55,7 @@ class GoogleShoppingService {
     }
 
 
-    async listProducts(): Promise<IListProductsResponse> {
+    async listProducts(): Promise<IProduct[]> {
         try {
             await ensureValidTokens();
             await this.getMerchantId()
@@ -65,17 +63,10 @@ class GoogleShoppingService {
             const parent = `accounts/${this.merchantId}`;
             const request = {parent};
 
-            const iterable = this.productsClient.listProductsAsync(request);
-            const products: IProduct[] = [];
+            // @see listProductsAsync() if you want to use auto pagination.
+            const [products] = await this.productsClient.listProducts(request);
 
-            for await (const response of iterable) {
-                products.push(response);
-            }
-
-            return {
-                products: products,
-                nextPageToken: null  // Pagination not implemented yet
-            };
+            return products
         } catch (error) {
             console.error('Error listing products:', error);
             throw error;
@@ -141,29 +132,19 @@ class GoogleShoppingService {
             const name = `accounts/${this.merchantId}/products/${offerId}`;
             const request = {name};
 
-            const [response] = await this.productsClient.getProduct(request);
-            return response as IProduct;
+            const [product] = await this.productsClient.getProduct(request);
+            return product;
         } catch (error) {
             console.error('Error getting product:', error);
             throw error;
         }
     }
 
-    async listMerchantAccounts(): Promise<IListAccountsResponse> {
+    async listMerchantAccounts(): Promise<IAccount[]> {
         try {
             await ensureValidTokens();
-
-            const iterable = this.accountsClient.listAccountsAsync({});
-            const accounts: IAccount[] = [];
-
-            for await (const account of iterable) {
-                accounts.push(account);
-            }
-
-            return {
-                accounts: accounts,
-                nextPageToken: null  // Pagination not implemented yet
-            };
+            const [accounts] = await this.accountsClient.listAccounts({});
+            return accounts;
         } catch (error) {
             console.error('Error listing merchant accounts:', error);
             throw error;
@@ -178,6 +159,7 @@ class GoogleShoppingService {
             const parent = `accounts/${this.merchantId}`;
             const request = {parent};
 
+            // @see listDataSourcesAsync() if you want to use auto pagination.
             const [dataSources] = await this.dataSourcesClient.listDataSources(request);
 
             console.log('Found dataSources:', dataSources);
@@ -215,11 +197,11 @@ class GoogleShoppingService {
 
             const accounts = await this.listMerchantAccounts();
 
-            if (!accounts.accounts || accounts.accounts.length === 0) {
+            if (!accounts || accounts.length === 0) {
                 throw new Error('No merchant accounts found');
             }
 
-            const firstAccount = accounts.accounts[0];
+            const firstAccount = accounts[0];
 
             if (!firstAccount.name) {
                 throw new Error('Account name not found');

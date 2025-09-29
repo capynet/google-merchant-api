@@ -107,7 +107,7 @@ router.post('/auth/register-gcp', async (req: any, res: any) => {
     }
 });
 
-router.post('/auth/unregister-gcp', async (req: any, res: any) => {
+router.get('/auth/unregister-gcp', async (req: any, res: any) => {
     if (!req.session?.tokens) {
         res.status(401).json({error: 'Authentication required'});
         return;
